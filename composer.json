@@ -70,7 +70,7 @@
         "test:lint": [
             "pint --test"
         ],
-        "test:unit": "pest --parallel --coverage",
+        "test:unit": "herd coverage ./vendor/bin/pest --parallel --coverage",
         "test:types": "phpstan",
         "test:refactor": "rector --dry-run",
         "test": [

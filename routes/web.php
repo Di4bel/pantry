@@ -19,4 +19,8 @@ Route::middleware(['auth'])->group(function (): void {
     Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
 });
 
+Route::middleware(['auth', 'verified'])->group(function (): void {
+    Volt::route('recipes', 'recipes.recipe-index')->name('recipes.index');
+})->prefix('recipes');
+
 require __DIR__.'/auth.php';

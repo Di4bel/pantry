@@ -17,7 +17,9 @@ class RecipeFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'title' => $this->faker->colorName(),
+            'description' => $this->faker->text(),
+            'creator_id' => $this->faker->numberBetween(1, 2),
         ];
     }
 }

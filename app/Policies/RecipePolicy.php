@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\Recipe;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class RecipePolicy
 {
@@ -13,7 +12,7 @@ class RecipePolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,7 +20,7 @@ class RecipePolicy
      */
     public function view(User $user, Recipe $recipe): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -29,7 +28,7 @@ class RecipePolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**

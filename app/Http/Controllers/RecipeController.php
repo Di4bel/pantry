@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Recipe;
 use App\Http\Requests\StoreRecipeRequest;
 use App\Http\Requests\UpdateRecipeRequest;
+use App\Models\Recipe;
 
 class RecipeController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): void
     {
         //
     }
@@ -19,7 +19,7 @@ class RecipeController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): void
     {
         //
     }
@@ -27,7 +27,7 @@ class RecipeController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreRecipeRequest $request)
+    public function store(StoreRecipeRequest $request): void
     {
         //
     }
@@ -35,7 +35,7 @@ class RecipeController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Recipe $recipe)
+    public function show(Recipe $recipe): void
     {
         //
     }
@@ -43,15 +43,17 @@ class RecipeController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Recipe $recipe)
+    public function edit(Recipe $recipe): void
     {
         //
     }
 
     /**
      * Update the specified resource in storage.
+     *
+     * @uses \App\Models\Recipe $recipe, UpdateRecipeRequest $request
      */
-    public function update(UpdateRecipeRequest $request, Recipe $recipe)
+    public function update(UpdateRecipeRequest $request, Recipe $recipe): void
     {
         //
     }
@@ -59,7 +61,7 @@ class RecipeController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Recipe $recipe)
+    public function destroy(Recipe $recipe): void
     {
         //
     }
