@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Policies;
 
 use App\Models\Recipe;
 use App\Models\User;
 
-class RecipePolicy
+final class RecipePolicy
 {
     /**
      * Determine whether the user can view any models.

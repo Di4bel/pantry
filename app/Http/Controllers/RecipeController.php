@@ -1,20 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
+use App\Actions\CreateRecipeAction;
 use App\Http\Requests\StoreRecipeRequest;
 use App\Http\Requests\UpdateRecipeRequest;
 use App\Models\Recipe;
 
-class RecipeController extends Controller
+final class RecipeController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(): void
-    {
-        //
-    }
+    public function index(): void {}
 
     /**
      * Show the form for creating a new resource.
@@ -27,9 +27,11 @@ class RecipeController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreRecipeRequest $request): void
+    public function store(StoreRecipeRequest $request, CreateRecipeAction $action): void
     {
-        //
+        $action->handle($request->user(),$request->validated());
+
+        return;
     }
 
     /**
