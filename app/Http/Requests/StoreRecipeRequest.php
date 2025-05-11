@@ -9,6 +9,7 @@ use Illuminate\Foundation\Http\FormRequest;
 final class StoreRecipeRequest extends FormRequest
 {
     protected $redirectRoute = 'user.login';
+
     /**
      * Determine if the user is authorized to make this request.
      */

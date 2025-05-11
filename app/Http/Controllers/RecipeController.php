@@ -27,11 +27,11 @@ final class RecipeController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreRecipeRequest $request, CreateRecipeAction $action): void
+    public function store(StoreRecipeRequest $request, CreateRecipeAction $action): \Illuminate\Http\RedirectResponse
     {
-        $action->handle($request->user(),$request->validated());
+        $recipe = $action->handle($request->user(), $request->validated());
 
-        return;
+        return to_route('recipes.show', $recipe);
     }
 
     /**

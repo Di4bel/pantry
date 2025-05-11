@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -21,7 +22,8 @@ final class RecipeFactory extends Factory
         return [
             'title' => $this->faker->colorName(),
             'description' => $this->faker->text(),
-            'creator_id' => $this->faker->numberBetween(1, 2),
+            'ingredients' => $this->faker->words(),
+            'creator_id' => User::factory()->create()->id,
         ];
     }
 }

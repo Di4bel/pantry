@@ -21,6 +21,11 @@ final class Recipe extends Model
         'creator_id',
     ];
 
+    /*
+     * Get the creator of the recipe.
+     *
+     * @return BelongsTo<User>
+     */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'creator_id');
@@ -29,7 +34,7 @@ final class Recipe extends Model
     protected function casts(): array
     {
         return [
-            'ingredients' => 'array'
+            'ingredients' => 'array',
         ];
     }
 }

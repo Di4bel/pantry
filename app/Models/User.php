@@ -44,13 +44,18 @@ final class User extends Authenticatable
     {
         return Str::of($this->name)
             ->explode(' ')
-            ->map(fn(string $name) => Str::of($name)->substr(0, 1))
+            ->map(fn (string $name) => Str::of($name)->substr(0, 1))
             ->implode('');
     }
 
+    /**
+     * Get the recipes for the user.
+     *
+     * @return HasMany<Recipe, $this>
+     */
     public function recipes(): HasMany
     {
-        return $this->hasMany(Recipe::class,'creator_id', 'id');
+        return $this->hasMany(Recipe::class, 'creator_id', 'id');
     }
 
     /**

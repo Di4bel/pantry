@@ -11,3 +11,6 @@ parameters:
         - bootstrap
         - database/factories
         - routes
+
+    excludePaths:
+        - tests
