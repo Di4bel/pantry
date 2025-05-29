@@ -63,6 +63,5 @@ test('email is verified with valid id and hash', function (): void {
     );
     $response = $this->get($verificationUrl);
 
-
-   $response->assertRedirect(route('dashboard', absolute: false).'?verified=1');
+    $response->assertRedirect(route('dashboard', absolute: false).'?verified=1');
 });
