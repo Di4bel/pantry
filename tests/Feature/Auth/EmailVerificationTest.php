@@ -49,3 +49,20 @@ test('email is not verified with invalid hash', function (): void {
 
     expect($user->fresh()->hasVerifiedEmail())->toBeFalse();
 });
+
+test('email is verified with valid id and hash', function (): void {
+    $user = User::factory()->create();
+
+    $user->markEmailAsVerified();
+    $this->actingAs($user);
+
+    $verificationUrl = URL::temporarySignedRoute(
+        'verification.verify',
+        now()->addMinutes(60),
+        ['id' => $user->id, 'hash' => sha1($user->email)]
+    );
+    $response = $this->get($verificationUrl);
+
+
+   $response->assertRedirect(route('dashboard', absolute: false).'?verified=1');
+});

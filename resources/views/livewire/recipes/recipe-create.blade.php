@@ -1,9 +1,13 @@
 <?php
 
-use function Livewire\Volt\{state};
+use function Livewire\Volt\{state,mount};
+
 
 state();
 
+mount(function () {
+
+});
 ?>
 
 <div>
