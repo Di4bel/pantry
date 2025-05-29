@@ -2,8 +2,7 @@
 
 use function Livewire\Volt\{state};
 
-state();
-
+state(['recipe' => fn() => $recipe]);
 ?>
 
 <div>

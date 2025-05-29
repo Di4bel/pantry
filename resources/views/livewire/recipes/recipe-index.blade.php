@@ -25,8 +25,8 @@ new class extends Component {
         </div>
         <flux:button variant="primary" href="{{route('recipes.create')}}" >{{ __('Create Recipe') }}</flux:button>
     </div>
-    <div class="p-2">
-        <table id="recipes" class="border border-gray-200 rounded overflow-hidden w-full">
+    <div class="p-4">
+        <table id="recipes" class="border-gray-200 rounded overflow-hidden w-full">
             <thead>
                 <tr class="">
                     <th class="p-2 text-left border max-w-xs truncate">Title</th>
@@ -36,8 +36,8 @@ new class extends Component {
             <tbody>
                 @foreach($recipes as $recipe)
                     <tr class="border border-gray-200">
-                        <td class="p-2 border">{{$recipe->title}}</td>
-                        <td class="p-2 border">{{$recipe->creator->name}}</td>
+                        <td class="p-2 border"><a href="{{route('recipes.show',$recipe)}}">{{$recipe->title}}</a> </td>
+                        <td class="p-2 border"><a href="{{route('users.show',$recipe->creator)}}">{{$recipe->creator->name}}</a></td>
                     </tr>
                 @endforeach
             </tbody>
