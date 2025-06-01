@@ -6,7 +6,7 @@
         wire:ignore
         {{ $attributes->whereDoesntStartWith('wire:model') }}
 >
-    <div class="tiptap border border-gray-300 rounded-t p-2 bg-gray-100 dark:bg-gray-700 flex flex-wrap gap-2">
+    <div class="tiptap border border-gray-300 rounded-t p-2 bg-gray-100 dark:text-gray-200 dark:bg-gray-700 flex flex-wrap gap-2">
         <button
             @click="toggleBold()"
             class="px-2 py-1 rounded hover:bg-gray-200 dark:hover:bg-gray-600 dark:text-white"

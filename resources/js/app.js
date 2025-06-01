@@ -31,7 +31,7 @@ window.setupEditor = function (content) {
                 },
                 editorProps: {
                     attributes: {
-                        class: 'min-h-full outline-none prose prose-sm sm:prose-base lg:prose-lg xl:prose-2xl m-5 focus:outline-none',
+                        class: 'min-h-full outline-none prose prose-sm sm:prose-base lg:prose-lg xl:prose-2xl m-5 focus:outline-none dark:text-white',
                     },
                 },
             })
