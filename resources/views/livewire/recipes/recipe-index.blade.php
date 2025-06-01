@@ -4,10 +4,14 @@ use Livewire\Volt\Component;
 use \App\Models\User;
 use \App\Models\Recipe;
 use \Livewire\WithPagination;
+use Livewire\Attributes\Lazy;
 
-new class extends Component {
+
+new
+#[Lazy]
+class extends Component {
     use WithPagination;
-
+    
     public function with():array
     {
         return [
@@ -25,7 +29,8 @@ new class extends Component {
         </div>
         <flux:button variant="primary" href="{{route('recipes.create')}}" >{{ __('Create Recipe') }}</flux:button>
     </div>
-    <div class="p-4">
+    <flux:separator class="my-4"/>
+    <div class="p-2">
         <table id="recipes" class="border-gray-200 rounded overflow-hidden w-full">
             <thead>
                 <tr class="">
@@ -36,8 +41,8 @@ new class extends Component {
             <tbody>
                 @foreach($recipes as $recipe)
                     <tr class="border border-gray-200">
-                        <td class="p-2 border"><a href="{{route('recipes.show',$recipe)}}">{{$recipe->title}}</a> </td>
-                        <td class="p-2 border"><a href="{{route('users.show',$recipe->creator)}}">{{$recipe->creator->name}}</a></td>
+                        <td class="p-2 border"><a class="hover:text-pink-300" href="{{route('recipes.show',$recipe)}}">{{$recipe->title}}</a> </td>
+                        <td class="p-2 border"><flux:avatar as="button" href="{{route('users.show',$recipe->creator)}}" name="{{$recipe->creator->name}}" color="auto" color:seed="{{$recipe->creator->id}}" /></td>
                     </tr>
                 @endforeach
             </tbody>

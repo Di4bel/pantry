@@ -6,5 +6,5 @@ state(['recipe' => fn() => $recipe]);
 ?>
 
 <div>
-
+    {{dump($recipe)}}
 </div>
