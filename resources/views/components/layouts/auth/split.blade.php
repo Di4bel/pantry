@@ -11,7 +11,7 @@
                         background-image: url('{{asset('images/loginSplitPicture.png')}}');
                         background-size: cover;
                 "></div>
-                <a href="{{ route('home') }}" class="relative z-20 flex items-center text-lg font-medium" wire:navigate>
+                <a href="{{ route('home') }}" class="relative z-20 flex items-center text-lg font-medium text-shadow-lg" wire:navigate>
                     <span class="flex h-10 w-10 items-center justify-center rounded-md">
                         <x-app-logo-icon class="mr-2 h-7 fill-current text-white" />
                     </span>
