@@ -12,7 +12,16 @@ state([
     ],
     'newIngredientName',
     'newIngredientAmount',
-    'newIngredientType',
+    'newIngredientType' => '',
+    'ingredientAmountType' => [
+        'count',
+        'kg',
+        'ml',
+        'l',
+        'g',
+        'tbsp',
+        'tsp',
+    ]
 ]);
 
 mount(function () {
@@ -21,9 +30,13 @@ mount(function () {
 
 $addIngredient = function (){
     $validated = $this->validate([
-        'newIngredientName' => 'string|required',
+        'newIngredientName' => 'string|required|max:255',
         'newIngredientAmount' => 'numeric|required',
-        'newIngredientType' => 'string|required'
+        'newIngredientType' => [
+            'string',
+            'required',
+            \Illuminate\Validation\Rule::in($this->ingredientAmountType),
+        ]
     ]);
 
     $this->recipe['ingredients'][] = [
@@ -31,7 +44,8 @@ $addIngredient = function (){
         'amount' => $validated['newIngredientAmount'],
         'type' => $validated['newIngredientType']
     ];
-    $this->reset('newIngredientName','newIngredientAmount','newIngredientType');
+    $this->reset('newIngredientName','newIngredientAmount');
+    $this->newIngredientType = '';
 };
 
 $removeIngredient =  function ($key) {
@@ -39,7 +53,6 @@ $removeIngredient =  function ($key) {
 };
 ?>
 <div class="h-1/4 flex flex-col">
-    @dump($recipe['ingredients'])
     <div class="p-2">
         <flux:field>
             <flux:label>Title:</flux:label>
@@ -51,27 +64,37 @@ $removeIngredient =  function ($key) {
         <flux:fieldset class="gap-y-2">
             <flux:legend>Ingredients</flux:legend>
             <flux:input.group>
-                <flux:input wire:model.live="newIngredientName" type="text" placeholder="Ingredient" />
-                <flux:input wire:model.live="newIngredientAmount" type="number" placeholder="Quantity" />
-                <flux:select wire:model.live="newIngredientType" placeholder="Type">
-                    <flux:select.option value="count">count</flux:select.option>
-                    <flux:select.option value="kg">kg</flux:select.option>
-                    <flux:select.option value="ml">ml</flux:select.option>
-                    <flux:select.option value="l">l</flux:select.option>
-                    <flux:select.option value="g">g</flux:select.option>
-                    <flux:select.option value="tbsp">tbsp</flux:select.option>
-                    <flux:select.option value="tsp">tsp</flux:select.option>
-                </flux:select>
-                <flux:button wire:click="addIngredient" icon="plus" />
+                <flux:field class="w-full">
+                    <flux:input wire:model="newIngredientName" type="text" placeholder="Ingredient" />
+                    <flux:error name="newIngredientName" />
+                </flux:field>
+                <flux:field class="w-full">
+                    <flux:input wire:model="newIngredientAmount" type="number" placeholder="Quantity" />
+                    <flux:error name="newIngredientAmount" />
+                </flux:field>
+                <flux:field class="w-full">
+                    <flux:select wire:model="newIngredientType" placeholder="Type...">
+                        <flux:select.option >count</flux:select.option>
+                        <flux:select.option >kg</flux:select.option>
+                        <flux:select.option >ml</flux:select.option>
+                        <flux:select.option >l</flux:select.option>
+                        <flux:select.option >g</flux:select.option>
+                        <flux:select.option >tbsp</flux:select.option>
+                        <flux:select.option >tsp</flux:select.option>
+                    </flux:select>
+                    <flux:error name="newIngredientType" />
+                </flux:field>
+                 <flux:button.group>
+                    <flux:button wire:click="addIngredient" icon="plus"/>
+                 </flux:button.group>
             </flux:input.group>
-            <div class="space-y-3">
+            <div class="">
                 @foreach($recipe['ingredients'] as $key => $ingredient)
-                    @dump($key,$ingredient)
-                    <div class="">
+
                         <flux:input.group>
-                            <flux:input wire:model.live="recipe.ingredients.{{$key}}.name" type="text" placeholder="Ingredient" />
-                            <flux:input wire:model.live="recipe.ingredients.{{$key}}.amount" type="number" placeholder="Quantity" />
-                            <flux:select wire:model.live="recipe.ingredients.{{$key}}.type" placeholder="Type">
+                            <flux:input wire:model="recipe.ingredients.{{$key}}.name" type="text" placeholder="Ingredient" />
+                            <flux:input wire:model="recipe.ingredients.{{$key}}.amount" type="number" placeholder="Quantity" />
+                            <flux:select wire:model="recipe.ingredients.{{$key}}.type" placeholder="Type">
                                 <flux:select.option value="count">count</flux:select.option>
                                 <flux:select.option value="kg">kg</flux:select.option>
                                 <flux:select.option value="ml">ml</flux:select.option>
@@ -80,9 +103,12 @@ $removeIngredient =  function ($key) {
                                 <flux:select.option value="tbsp">tbsp</flux:select.option>
                                 <flux:select.option value="tsp">tsp</flux:select.option>
                             </flux:select>
-                            <flux:button wire:click="removeIngredient({{$key}})" icon="minus" />
+                            <flux:button.group>
+                                <flux:button  wire:click="duplicateIngredient({{$key}})" icon="clipboard-document"  />
+                                <flux:button variant="danger" wire:click="removeIngredient({{$key}})" icon="minus"  />
+                            </flux:button.group>
                         </flux:input.group>
-                    </div>
+
                 @endforeach
             </div>
         </flux:fieldset>
