@@ -50,13 +50,14 @@ $addIngredient = function () {
             'string',
             'required',
             \Illuminate\Validation\Rule::in($this->ingredientAmountType),
-        ]
+        ],
     ]);
 
     $this->ingredients[] = [
         'name' => $validated['newIngredientName'],
         'amount' => $validated['newIngredientAmount'],
-        'type' => $validated['newIngredientType']
+        'type' => $validated['newIngredientType'],
+        'order' => count($this->ingredients),
     ];
     $this->reset('newIngredientName', 'newIngredientAmount');
     $this->newIngredientType = '';
@@ -71,7 +72,11 @@ $saveRecipe = function () {
     $validated = $this->validate();
     $recipe = $action->handle(auth()->user(),$validated);
     to_route('recipes.show', $recipe);
-}
+};
+
+$changeIngredientsOrder = function ($itemOrderOldKey){
+    $this->recipe->ingredients->get($itemOrderKey,fn($item) => $item->order);
+};
 ?>
 <div class="h-1/4 flex flex-col">
     <div class="p-2 text-right">
@@ -112,11 +117,11 @@ $saveRecipe = function () {
                     <flux:button wire:click="addIngredient" icon="plus"/>
                 </flux:button.group>
             </flux:input.group>
-            <flux:error name="ingredients"/>
-            <div class="mt-2">
+            <flux:error name="ingredient"/>
+            <div class="mt-2" id="ingredientsList">
                 @foreach($ingredients as $key => $ingredient)
 
-                    <flux:input.group>
+                    <flux:input.group wire:key="{{$key}}">
                         <flux:input wire:model="ingredients.{{$key}}.name" type="text" placeholder="Ingredient"/>
                         <flux:input wire:model="ingredients.{{$key}}.amount" type="number"
                                     placeholder="Quantity"/>
@@ -150,4 +155,15 @@ $saveRecipe = function () {
         </div>
         <flux:error class="mt-16" name="description"/>
     </div>
+
+    @script
+    <script>
+        Sortable.create(document.getElementById('ingredientsList'),
+            {
+                onSort: function (event) {
+                    console.log(event);
+                }
+            });
+    </script>
+    @endscript
 </div>

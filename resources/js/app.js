@@ -1,6 +1,8 @@
 import {Editor, isActive} from '@tiptap/core'
 import StarterKit from '@tiptap/starter-kit'
+import Sortable from 'sortablejs/modular/sortable.complete.esm.js';
 
+window.Sortable = Sortable
 window.setupEditor = function (content) {
     let editor
 
