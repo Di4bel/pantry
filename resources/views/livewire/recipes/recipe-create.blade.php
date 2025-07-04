@@ -75,7 +75,7 @@ $saveRecipe = function () {
     to_route('recipes.show', $recipe);
 };
 
-$changeIngredientsOrder = function ($itemOrderOldKey, $newKey) {
+$changeIngredientsOrder = function (int $itemOrderOldKey, int $newKey) {
     if (isset($this->ingredients[$itemOrderOldKey]) && isset($this->ingredients[$newKey])) {
         // Convert to array, reorder, and convert back to collection
         $ingredients = $this->ingredients->toArray();
@@ -184,7 +184,6 @@ $changeIngredientsOrder = function ($itemOrderOldKey, $newKey) {
         Sortable.create(document.getElementById('ingredientsList'),
             {
                 onSort: function (event) {
-                    console.log(event);
                     $wire.changeIngredientsOrder(event.oldIndex, event.newIndex);
                 }
             });
