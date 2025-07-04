@@ -5,7 +5,7 @@ use function Livewire\Volt\{rules, state, mount};
 
 state([
     'title' => '',
-    'ingredients' => [],
+    'ingredients' => collect(),
     'description' => '',
     'newIngredientName',
     'newIngredientAmount',
@@ -36,9 +36,10 @@ rules([
             'l',
             'g',
             'tbsp',
-            'tsp',
-        ]),
+            'tsp',]
+        ),
     ],
+    'ingredients.*.order' => 'required|numeric',
     'description' => 'string|required|regex:/^.+$/'
 ]);
 
@@ -74,10 +75,32 @@ $saveRecipe = function () {
     to_route('recipes.show', $recipe);
 };
 
-$changeIngredientsOrder = function ($itemOrderOldKey){
-    $this->recipe->ingredients->get($itemOrderKey,fn($item) => $item->order);
+$changeIngredientsOrder = function ($itemOrderOldKey, $newKey) {
+    if (isset($this->ingredients[$itemOrderOldKey]) && isset($this->ingredients[$newKey])) {
+        // Convert to array, reorder, and convert back to collection
+        $ingredients = $this->ingredients->toArray();
+
+        // Extract the item to move
+        $movedItem = $ingredients[$itemOrderOldKey];
+
+        // Remove the item from its original position
+        unset($ingredients[$itemOrderOldKey]);
+
+        // Reindex the array to ensure sequential keys
+        $ingredients = array_values($ingredients);
+
+        // Insert the item at the new position
+        array_splice($ingredients, $newKey, 0, [$movedItem]);
+
+        // Convert back to collection and update order values sequentially
+        $this->ingredients = collect($ingredients)->map(function ($item, $key) {
+            $item['order'] = $key;
+            return $item;
+        })->values();
+    }
 };
 ?>
+
 <div class="h-1/4 flex flex-col">
     <div class="p-2 text-right">
         <flux:button variant="primary" icon:trailing="plus" wire:click="saveRecipe()" >Save Recipe</flux:button>
@@ -122,10 +145,10 @@ $changeIngredientsOrder = function ($itemOrderOldKey){
                 @foreach($ingredients as $key => $ingredient)
 
                     <flux:input.group wire:key="{{$key}}">
-                        <flux:input wire:model="ingredients.{{$key}}.name" type="text" placeholder="Ingredient"/>
-                        <flux:input wire:model="ingredients.{{$key}}.amount" type="number"
+                        <flux:input wire:model.live="ingredients.{{$key}}.name" type="text" placeholder="Ingredient"/>
+                        <flux:input wire:model.live="ingredients.{{$key}}.amount" type="number"
                                     placeholder="Quantity"/>
-                        <flux:select wire:model="ingredients.{{$key}}.type" placeholder="Type">
+                        <flux:select wire:model.live="ingredients.{{$key}}.type" placeholder="Type">
                             <flux:select.option value="count">count</flux:select.option>
                             <flux:select.option value="kg">kg</flux:select.option>
                             <flux:select.option value="ml">ml</flux:select.option>
@@ -162,6 +185,7 @@ $changeIngredientsOrder = function ($itemOrderOldKey){
             {
                 onSort: function (event) {
                     console.log(event);
+                    $wire.changeIngredientsOrder(event.oldIndex, event.newIndex);
                 }
             });
     </script>
