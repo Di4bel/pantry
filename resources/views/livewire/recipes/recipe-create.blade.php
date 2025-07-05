@@ -65,7 +65,8 @@ $addIngredient = function () {
 };
 
 $removeIngredient = function ($key) {
-    unset($this->recipe['ingredients'][$key]);
+    unset($this->ingredients[$key]);
+    $this->ingredients = $this->ingredients->values();
 };
 
 $saveRecipe = function () {

@@ -14,10 +14,12 @@ final readonly class UpdateRecipeAction
      */
     public function handle(array $data, Recipe $recipe): void
     {
+
         DB::transaction(function () use ($data, $recipe): void {
             $recipe->update($data);
         });
 
-        broadcast()->toOthers();
+        // TODO: add Event and Listeners
+        broadcast('Recipe:'.$recipe->id.' updated')->toOthers();
     }
 }
