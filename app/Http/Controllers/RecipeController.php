@@ -29,7 +29,7 @@ final class RecipeController
      */
     public function update(UpdateRecipeRequest $request, UpdateRecipeAction $action, Recipe $recipe): void
     {
-        $action->handle($request, $recipe);
+        $action->handle($recipe, $request->validated());
     }
 
     /**

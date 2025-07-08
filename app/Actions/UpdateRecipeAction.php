@@ -12,7 +12,7 @@ final readonly class UpdateRecipeAction
     /**
      * Execute the action.
      */
-    public function handle(array $data, Recipe $recipe): void
+    public function handle(Recipe $recipe, array $data): void
     {
 
         DB::transaction(function () use ($data, $recipe): void {
