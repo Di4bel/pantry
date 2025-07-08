@@ -40,6 +40,7 @@ final class RecipeFactory extends Factory
                         ]),
                     ];
                 }
+
                 return $array;
             },
             'creator_id' => User::factory()->create(),
