@@ -83,7 +83,7 @@ $removeIngredient = function ($key) {
 $saveRecipe = function () {
     $action = new \App\Actions\UpdateRecipeAction();
     $validated = $this->validate();
-    $action->handle($validated,$this->recipe);
+    $action->handle($this->recipe, $validated);
 };
 
 $changeIngredientsOrder = function (int $itemOrderOldKey, int $newKey) {
