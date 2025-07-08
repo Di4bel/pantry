@@ -79,7 +79,7 @@ class extends Component {
     </div>
     <div class="mt-4">
         <div class="bg-gray-300 rounded-sm p-4 w-full">
-            <div class=" prose ">
+            <div class=" prose max-w-none overflow-clip">
                 {!! $recipe->description  !!}
             </div>
         </div>
