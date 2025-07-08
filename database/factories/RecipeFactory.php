@@ -22,8 +22,27 @@ final class RecipeFactory extends Factory
         return [
             'title' => $this->faker->colorName(),
             'description' => $this->faker->text(),
-            'ingredients' => $this->faker->words(),
-            'creator_id' => User::factory()->create()->id,
+            'ingredients' => function () {
+                $times = $this->faker->randomDigit() + 1;
+                $array = [];
+                for ($i = 0; $i < $times; $i++) {
+                    $array[] = [
+                        'name' => $this->faker->word(),
+                        'amount' => $this->faker->randomDigit(),
+                        'type' => $this->faker->randomElement([
+                            'count',
+                            'kg',
+                            'ml',
+                            'l',
+                            'g',
+                            'tbsp',
+                            'tsp',
+                        ]),
+                    ];
+                }
+                return $array;
+            },
+            'creator_id' => User::factory()->create(),
         ];
     }
 }
