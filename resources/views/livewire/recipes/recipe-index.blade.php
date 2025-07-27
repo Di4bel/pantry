@@ -32,19 +32,19 @@ class extends Component {
     <flux:separator class="my-4"/>
 
     @if(!blank($recipes))
-        <div class="p-2">
-            <table id="recipes" class="border-gray-200 rounded overflow-hidden w-full">
+        <div class="p-4 border rounded-sm">
+            <table id="recipes" class="table-auto border-collapse w-full">
                 <thead>
                 <tr class="">
-                    <th class="p-2 text-left border max-w-xs truncate">Title</th>
-                    <th class="p-2 text-left border">Creator</th>
+                    <th class="p-2 text-left border-r border-b max-w-xs truncate">Title</th>
+                    <th class="p-2 text-left border-b">Creator</th>
                 </tr>
                 </thead>
                 <tbody>
                 @foreach($recipes as $recipe)
-                    <tr class="border border-gray-200">
-                        <td class="p-2 border"><a class="hover:text-pink-300" href="{{route('recipes.show',$recipe)}}">{{$recipe->title}}</a> </td>
-                        <td class="p-2 border"><flux:avatar as="button" href="{{route('users.show',$recipe->creator)}}" name="{{$recipe->creator->name}}" color="auto" color:seed="{{$recipe->creator->id}}" /></td>
+                    <tr class=" border border-gray-200">
+                        <td class="p-2 border-r "><a class="hover:text-pink-300" href="{{route('recipes.show',$recipe)}}">{{$recipe->title}}</a> </td>
+                        <td class="p-2 "><flux:avatar as="button" href="{{route('users.show',$recipe->creator)}}" name="{{$recipe->creator->name}}" color="auto" color:seed="{{$recipe->creator->id}}" /></td>
                     </tr>
                 @endforeach
                 </tbody>
