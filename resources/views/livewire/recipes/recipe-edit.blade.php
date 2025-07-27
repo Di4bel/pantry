@@ -110,10 +110,17 @@ $changeIngredientsOrder = function (int $itemOrderOldKey, int $newKey) {
         })->values();
     }
 };
+
+$removeRecipe = function (){
+    $this->recipe->delete();
+    $this->dispatch('DeleteRecipe');
+    $this->redirectRoute('recipes.index');
+}
 ?>
 
 <div class="h-1/4 flex flex-col">
-    <div class="p-2 text-right">
+    <div class="p-2 sm:justify-end flex sm:flex-row sm:gap-4 flex-col gap-2 mb-8">
+        <flux:button variant="danger" icon:trailing="trash" wire:confirm="Do you wanna delete this Recipe?" wire:click="removeRecipe()">Delete Recipe</flux:button>
         <flux:button variant="primary" icon:trailing="plus" wire:click="saveRecipe()">Save Recipe</flux:button>
     </div>
     <div class="p-2">

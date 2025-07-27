@@ -26,6 +26,13 @@ class extends Component {
 
         ];
     }
+
+    public function copy()
+    {
+        $recipe = $this->recipe->replicate()->fill(['creator_id' => auth()->user()->id]);
+        $recipe->save();
+        $this->redirectRoute('recipes.edit',$recipe);
+    }
 };
 ?>
 
@@ -35,6 +42,8 @@ class extends Component {
             {{$recipe->title}}
             @if($creatorLoggedIn)
                 <flux:button icon="pencil-square" size="xs" variant="ghost" href="{{route('recipes.edit',$recipe)}}"/>
+            @else
+                <flux:button icon="document-duplicate" size="xs" variant="ghost" wire:confirm="Do you really wanna copy the Recipe?" wire:click="copy" >copy</flux:button>
             @endif
         </flux:heading>
         <div class="flex items-center gap-2 sm:gap-4">
