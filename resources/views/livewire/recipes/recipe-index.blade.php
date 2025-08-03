@@ -32,7 +32,7 @@ class extends Component {
     <flux:separator class="my-4"/>
 
     @if(!blank($recipes))
-        <div class="p-4 border rounded-sm">
+        <div class="p-1 border rounded-sm">
             <table id="recipes" class="table-auto border-collapse w-full">
                 <thead>
                 <tr class="">

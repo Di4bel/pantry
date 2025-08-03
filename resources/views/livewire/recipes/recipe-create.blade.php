@@ -1,7 +1,7 @@
 <?php
 
-use function Livewire\Volt\{rules, state, mount};
-
+use function Livewire\Volt\{rules, state, mount,usesFileUploads};
+usesFileUploads();
 
 state([
     'title' => '',
@@ -19,6 +19,7 @@ state([
         'tbsp',
         'tsp',
     ],
+    'photos' => [],
 ]);
 
 rules([
@@ -112,6 +113,22 @@ $changeIngredientsOrder = function (int $itemOrderOldKey, int $newKey) {
             <flux:input type="text" wire:model.live="title"/>
             <flux:error name="title"/>
         </flux:field>
+    </div>
+    <div class="p-2">
+        <flux:input  type="file" wire:model="photos" label="Photos:" multiple />
+
+        <div class="m-2" wire:loading wire:target="photo">Uploading...</div>
+        <div class="grid sm:grid-cols-4 grid-cols-1 gap-2 m-2">
+            @foreach($photos as $key => $photo)
+                <div class="col-span-1 relative ">
+                    <flux:button.group class="absolute top-0 right-0">
+
+                        <flux:button wire:click="removePicture({{$key}})" variant="ghost"><flux:icon.minus-circle variant="solid" color="red" /></flux:button>
+                    </flux:button.group>
+                    <img class="object-cover" src="{{$photo->temporaryUrl()}}" wire:click="remove" alt=""/>
+                </div>
+            @endforeach
+        </div>
     </div>
     <div class="p-2">
         <flux:fieldset class="gap-y-2">
