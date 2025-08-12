@@ -1,7 +1,9 @@
 <?php
 
 use App\Models\Recipe;
-use function Livewire\Volt\{rules, state, mount};
+use function Livewire\Volt\{rules, state, mount, usesFileUploads};
+
+usesFileUploads();
 
 
 state(['recipe'])->locked();
@@ -21,14 +23,18 @@ state([
         'tbsp',
         'tsp',
     ],
+    'photos',
+    'newPhotos' => [],
+    'photosRemoveID' => [],
 ]);
 
 
-mount(function (Recipe $recipe){
+mount(function (Recipe $recipe) {
     $this->recipe = $recipe;
     $this->title = $recipe->title;
     $this->ingredients = collect($recipe->ingredients);
     $this->description = $recipe->description;
+    $this->photos = $recipe->getMedia();
 });
 
 
@@ -83,7 +89,7 @@ $removeIngredient = function ($key) {
 $saveRecipe = function () {
     $action = new \App\Actions\UpdateRecipeAction();
     $validated = $this->validate();
-    $action->handle($this->recipe, $validated);
+    $recipe = $action->handle($this->recipe, $validated);
 };
 
 $changeIngredientsOrder = function (int $itemOrderOldKey, int $newKey) {
@@ -111,16 +117,25 @@ $changeIngredientsOrder = function (int $itemOrderOldKey, int $newKey) {
     }
 };
 
-$removeRecipe = function (){
+$removeRecipe = function () {
     $this->recipe->delete();
     $this->dispatch('DeleteRecipe');
     $this->redirectRoute('recipes.index');
-}
+};
+
+$removePhoto = function (int $photoKey): void {
+    $this->photosRemoveID[] = $this->photos[$photoKey]->id;
+    unset($this->photos[$photoKey]);
+    dump($this->photosRemoveID);
+};
+
 ?>
 
 <div class="h-1/4 flex flex-col">
     <div class="p-2 sm:justify-end flex sm:flex-row sm:gap-4 flex-col gap-2 mb-8">
-        <flux:button variant="danger" icon:trailing="trash" wire:confirm="Do you wanna delete this Recipe?" wire:click="removeRecipe()">Delete Recipe</flux:button>
+        <flux:button variant="danger" icon:trailing="trash" wire:confirm="Do you wanna delete this Recipe?"
+                     wire:click="removeRecipe()">Delete Recipe
+        </flux:button>
         <flux:button variant="primary" icon:trailing="plus" wire:click="saveRecipe()">Save Recipe</flux:button>
     </div>
     <div class="p-2">
@@ -129,6 +144,41 @@ $removeRecipe = function (){
             <flux:input type="text" wire:model.live="title"/>
             <flux:error name="title"/>
         </flux:field>
+    </div>
+    <div class="p-2">
+        <flux:input type="file" wire:model="newUploadPhotos" label="Photos:" multiple/>
+        <div class="border border-dashed w-full h-12 my-4">
+
+        </div>
+        <div class="m-2" wire:loading wire:target="photo">Uploading...</div>
+        <div class="grid sm:grid-cols-4 grid-cols-1 gap-2 m-2">
+            @foreach($photos as $key => $photo)
+                <div wire:key="photo-{{$key}}" class="col-span-1 relative border p-1 rounded-sm shadow-sm ">
+                    <flux:button.group class="absolute top-0 right-0">
+
+                        <flux:button wire:click="removePhoto({{$key}})" variant="ghost">
+                            <flux:icon.minus-circle variant="solid" color="red"/>
+                        </flux:button>
+                    </flux:button.group>
+                    <img class="object-contain mb-2" src="{{$photo->getUrl()}}" wire:click="remove" alt=""/>
+                    <flux:separator/>
+                    <flux:input type="text" label="Title"></flux:input>
+                </div>
+            @endforeach
+            @foreach($newPhotos as $key => $photo)
+                <div wire:key="newPhoto-{{$key}}" class="col-span-1 relative border p-1 rounded-sm shadow-sm ">
+                    <flux:button.group class="absolute top-0 right-0">
+
+                        <flux:button wire:click="removePhoto({{$key}})" variant="ghost">
+                            <flux:icon.minus-circle variant="solid" color="red"/>
+                        </flux:button>
+                    </flux:button.group>
+                    <img class="object-contain mb-2" src="{{$photo->temporaryUrl()}}" wire:click="remove" alt=""/>
+                    <flux:separator/>
+                    <flux:input type="text" label="Title"></flux:input>
+                </div>
+            @endforeach
+        </div>
     </div>
     <div class="p-2">
         <flux:fieldset class="gap-y-2">

@@ -74,6 +74,11 @@ $saveRecipe = function () {
     $action = new \App\Actions\CreateRecipeAction();
     $validated = $this->validate();
     $recipe = $action->handle(auth()->user(),$validated);
+    foreach ($this->photos as $photo){
+        $recipe->addMedia($photo->path())
+            ->usingName($photo->getClientOriginalName())
+            ->toMediaCollection();
+    }
     to_route('recipes.show', $recipe);
 };
 
@@ -101,6 +106,10 @@ $changeIngredientsOrder = function (int $itemOrderOldKey, int $newKey) {
         })->values();
     }
 };
+
+$removePhoto = function (int $photoKey):void {
+    unset($this->photos[$photoKey]);
+}
 ?>
 
 <div class="h-1/4 flex flex-col">
@@ -120,12 +129,14 @@ $changeIngredientsOrder = function (int $itemOrderOldKey, int $newKey) {
         <div class="m-2" wire:loading wire:target="photo">Uploading...</div>
         <div class="grid sm:grid-cols-4 grid-cols-1 gap-2 m-2">
             @foreach($photos as $key => $photo)
-                <div class="col-span-1 relative ">
+                <div class="col-span-1 relative border p-1 rounded-sm shadow-sm ">
                     <flux:button.group class="absolute top-0 right-0">
 
-                        <flux:button wire:click="removePicture({{$key}})" variant="ghost"><flux:icon.minus-circle variant="solid" color="red" /></flux:button>
+                        <flux:button wire:click="removePhoto({{$key}})" variant="ghost"><flux:icon.minus-circle variant="solid" color="red" /></flux:button>
                     </flux:button.group>
-                    <img class="object-cover" src="{{$photo->temporaryUrl()}}" wire:click="remove" alt=""/>
+                    <img class="object-contain mb-2" src="{{$photo->temporaryUrl()}}" wire:click="remove" alt=""/>
+                    <flux:separator />
+                    <flux:input type="text" label="Title" />
                 </div>
             @endforeach
         </div>
