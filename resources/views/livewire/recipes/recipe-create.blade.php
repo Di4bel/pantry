@@ -44,7 +44,7 @@ rules([
     'description' => 'string|required|regex:/^.+$/'
 ]);
 
-$addIngredient = function () {
+$addIngredient = function (): void {
     $validated = $this->validate([
         'newIngredientName' => 'string|required|max:255',
         'newIngredientAmount' => 'numeric|required',
@@ -65,12 +65,12 @@ $addIngredient = function () {
     $this->newIngredientType = '';
 };
 
-$removeIngredient = function ($key) {
+$removeIngredient = function ($key): void {
     unset($this->ingredients[$key]);
     $this->ingredients = $this->ingredients->values();
 };
 
-$saveRecipe = function () {
+$saveRecipe = function (): void {
     $action = new \App\Actions\CreateRecipeAction();
     $validated = $this->validate();
     $recipe = $action->handle(auth()->user(),$validated);
@@ -82,7 +82,7 @@ $saveRecipe = function () {
     to_route('recipes.show', $recipe);
 };
 
-$changeIngredientsOrder = function (int $itemOrderOldKey, int $newKey) {
+$changeIngredientsOrder = function (int $itemOrderOldKey, int $newKey): void {
     if (isset($this->ingredients[$itemOrderOldKey]) && isset($this->ingredients[$newKey])) {
         // Convert to array, reorder, and convert back to collection
         $ingredients = $this->ingredients->toArray();
@@ -135,8 +135,6 @@ $removePhoto = function (int $photoKey):void {
                         <flux:button wire:click="removePhoto({{$key}})" variant="ghost"><flux:icon.minus-circle variant="solid" color="red" /></flux:button>
                     </flux:button.group>
                     <img class="object-contain mb-2" src="{{$photo->temporaryUrl()}}" wire:click="remove" alt=""/>
-                    <flux:separator />
-                    <flux:input type="text" label="Title" />
                 </div>
             @endforeach
         </div>
