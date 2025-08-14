@@ -1,6 +1,7 @@
 <?php
 
-use function Livewire\Volt\{rules, state, mount,usesFileUploads};
+use function Livewire\Volt\{rules, state, mount, updated, usesFileUploads};
+
 usesFileUploads();
 
 state([
@@ -20,6 +21,7 @@ state([
         'tsp',
     ],
     'photos' => [],
+    'newUploadPhotos' => [],
 ]);
 
 rules([
@@ -31,13 +33,13 @@ rules([
         'string',
         'required',
         \Illuminate\Validation\Rule::in([
-            'count',
-            'kg',
-            'ml',
-            'l',
-            'g',
-            'tbsp',
-            'tsp',]
+                'count',
+                'kg',
+                'ml',
+                'l',
+                'g',
+                'tbsp',
+                'tsp',]
         ),
     ],
     'ingredients.*.order' => 'required|numeric',
@@ -73,8 +75,8 @@ $removeIngredient = function ($key): void {
 $saveRecipe = function (): void {
     $action = new \App\Actions\CreateRecipeAction();
     $validated = $this->validate();
-    $recipe = $action->handle(auth()->user(),$validated);
-    foreach ($this->photos as $photo){
+    $recipe = $action->handle(auth()->user(), $validated);
+    foreach ($this->photos as $photo) {
         $recipe->addMedia($photo->path())
             ->usingName($photo->getClientOriginalName())
             ->toMediaCollection();
@@ -107,24 +109,31 @@ $changeIngredientsOrder = function (int $itemOrderOldKey, int $newKey): void {
     }
 };
 
-$removePhoto = function (int $photoKey):void {
+$removePhoto = function (int $photoKey): void {
     unset($this->photos[$photoKey]);
-}
+};
+
+updated(['newUploadPhotos' => function () {
+    foreach ($this->newUploadPhotos as $newUpload) {
+        $this->photos[] = $newUpload;
+    }
+    $this->reset('newUploadPhotos');
+}]);
 ?>
 
 <div class="h-1/4 flex flex-col">
     <div class="p-2 text-right">
-        <flux:button variant="primary" icon:trailing="plus" wire:click="saveRecipe()" >Save Recipe</flux:button>
+        <flux:button variant="primary" icon:trailing="plus" wire:click="saveRecipe()">Save Recipe</flux:button>
     </div>
     <div class="p-2">
         <flux:field>
             <flux:label>Title:</flux:label>
-            <flux:input type="text" wire:model.live="title"/>
+            <flux:input type="text" wire:model="title"/>
             <flux:error name="title"/>
         </flux:field>
     </div>
     <div class="p-2">
-        <flux:input  type="file" wire:model="photos" label="Photos:" multiple />
+        <flux:input type="file" wire:model="newUploadPhotos" label="Photos:" multiple/>
 
         <div class="m-2" wire:loading wire:target="photo">Uploading...</div>
         <div class="grid sm:grid-cols-4 grid-cols-1 gap-2 m-2">
@@ -132,7 +141,9 @@ $removePhoto = function (int $photoKey):void {
                 <div class="col-span-1 relative border p-1 rounded-sm shadow-sm ">
                     <flux:button.group class="absolute top-0 right-0">
 
-                        <flux:button wire:click="removePhoto({{$key}})" variant="ghost"><flux:icon.minus-circle variant="solid" color="red" /></flux:button>
+                        <flux:button wire:click="removePhoto({{$key}})" variant="ghost">
+                            <flux:icon.minus-circle variant="solid" color="red"/>
+                        </flux:button>
                     </flux:button.group>
                     <img class="object-contain mb-2" src="{{$photo->temporaryUrl()}}" wire:click="remove" alt=""/>
                 </div>
@@ -167,7 +178,7 @@ $removePhoto = function (int $photoKey):void {
                     <flux:button wire:click="addIngredient" icon="plus"/>
                 </flux:button.group>
             </flux:input.group>
-            <flux:error name="ingredient"/>
+            <flux:error name="ingredients"/>
             <div class="mt-2" id="ingredientsList">
                 @foreach($ingredients as $key => $ingredient)
 

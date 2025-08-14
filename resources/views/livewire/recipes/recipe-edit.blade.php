@@ -1,12 +1,14 @@
 <?php
 
+use App\Actions\UpdateRecipeAction;
 use App\Models\Recipe;
-use function Livewire\Volt\{rules, state, mount, usesFileUploads};
+use Illuminate\Validation\Rule;
+use function Livewire\Volt\{on, rules, state, mount, updated, usesFileUploads};
 
 usesFileUploads();
 
 
-state(['recipe'])->locked();
+state(['recipe']);
 state([
     'title' => '',
     'ingredients' => collect(),
@@ -25,6 +27,7 @@ state([
     ],
     'photos',
     'newPhotos' => [],
+    'newUploadPhotos' => [],
     'photosRemoveID' => [],
 ]);
 
@@ -46,7 +49,7 @@ rules([
     'ingredients.*.type' => [
         'string',
         'required',
-        \Illuminate\Validation\Rule::in([
+        Rule::in([
                 'count',
                 'kg',
                 'ml',
@@ -67,7 +70,7 @@ $addIngredient = function (): void {
         'newIngredientType' => [
             'string',
             'required',
-            \Illuminate\Validation\Rule::in($this->ingredientAmountType),
+            Rule::in($this->ingredientAmountType),
         ],
     ]);
 
@@ -87,9 +90,23 @@ $removeIngredient = function ($key): void {
 };
 
 $saveRecipe = function (): void {
-    $action = new \App\Actions\UpdateRecipeAction();
+    $action = new UpdateRecipeAction();
     $validated = $this->validate();
     $recipe = $action->handle($this->recipe, $validated);
+    foreach ($this->photosRemoveID as $id) {
+        $recipe->deleteMedia($id);
+    }
+    foreach ($this->newPhotos as $photo) {
+        $recipe->addMedia($photo->path())
+            ->usingName($photo->getClientOriginalName())
+            ->toMediaCollection();
+    }
+    $this->newPhotos = [];
+    $this->photosRemoveID = [];
+
+    // Problem with getMedia after deleting photos,
+    $this->recipe = Recipe::find($recipe->id);
+    $this->photos = $this->recipe->getMedia();
 };
 
 $changeIngredientsOrder = function (int $itemOrderOldKey, int $newKey): void {
@@ -126,8 +143,18 @@ $removeRecipe = function (): void {
 $removePhoto = function (int $photoKey): void {
     $this->photosRemoveID[] = $this->photos[$photoKey]->id;
     unset($this->photos[$photoKey]);
-    dump($this->photosRemoveID);
 };
+
+$removeNewPhoto = function (int $photoKey): void {
+    unset($this->newPhotos[$photoKey]);
+};
+
+updated(['newUploadPhotos' => function () {
+    foreach ($this->newUploadPhotos as $newUpload) {
+        $this->newPhotos[] = $newUpload;
+    }
+    $this->reset('newUploadPhotos');
+}]);
 
 ?>
 
@@ -146,14 +173,15 @@ $removePhoto = function (int $photoKey): void {
         </flux:field>
     </div>
     <div class="p-2">
-        <flux:input type="file" wire:model="newUploadPhotos" label="Photos:" multiple/>
+        <flux:input type="file" wire:loading wire:model="newUploadPhotos" label="Photos:" multiple/>
         <div class="border border-dashed w-full h-12 my-4">
 
         </div>
-        <div class="m-2" wire:loading wire:target="photo">Uploading...</div>
+        <div class="m-2" wire:loading wire:target="newUploadPhotos">Uploading...</div>
         <div class="grid sm:grid-cols-4 grid-cols-1 gap-2 m-2">
             @foreach($photos as $key => $photo)
-                <div wire:key="photo-{{$key}}" class="col-span-1 relative border p-1 rounded-sm shadow-sm ">
+                <div wire:replace wire:key="photo-{{$photo->id}}"
+                     class="col-span-1 relative border p-1 rounded-sm shadow-sm ">
                     <flux:button.group class="absolute top-0 right-0">
 
                         <flux:button wire:click="removePhoto({{$key}})" variant="ghost">
@@ -167,7 +195,7 @@ $removePhoto = function (int $photoKey): void {
                 <div wire:key="newPhoto-{{$key}}" class="col-span-1 relative border p-1 rounded-sm shadow-sm ">
                     <flux:button.group class="absolute top-0 right-0">
 
-                        <flux:button wire:click="removePhoto({{$key}})" variant="ghost">
+                        <flux:button wire:click="removeNewPhoto({{$key}})" variant="ghost">
                             <flux:icon.minus-circle variant="solid" color="red"/>
                         </flux:button>
                     </flux:button.group>
@@ -208,7 +236,7 @@ $removePhoto = function (int $photoKey): void {
             <div class="mt-2" id="ingredientsList">
                 @foreach($ingredients as $key => $ingredient)
 
-                    <flux:input.group wire:key="{{$key}}">
+                    <flux:input.group wire:key="ingredients-{{$key}}">
                         <flux:input wire:model.live="ingredients.{{$key}}.name" type="text" placeholder="Ingredient"/>
                         <flux:input wire:model.live="ingredients.{{$key}}.amount" type="number"
                                     placeholder="Quantity"/>
