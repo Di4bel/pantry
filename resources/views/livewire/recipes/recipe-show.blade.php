@@ -81,15 +81,13 @@ class extends Component {
                 </tbody>
             </table>
         </div>
-        <div class="rounded p-1 border dark:border-gray-200  sm:col-span-1 col-span-2 ">
-            <div class=" grid grid-cols-2 ">
+        <div class="rounded p-1 border dark:border-gray-200 flex flex-col sm:col-span-1 col-span-2 ">
+            <div class=" grid lg:grid-cols-2 grid-cols-1 gap-2 ">
                 @foreach($recipe->getMedia() as $key => $media)
-                    <div class="col-span-1 cursor-pointer">
-                        <img src="{{$media->getUrl()}}" alt="{{$media->name}}" x-on:click="$flux.modal('highlight-media-{{$key}}').show()" />
-                        <flux:modal variant="flyout" position="right" :name="'highlight-media-'.$key">
-                            <div class="container">
-                                <img src="{{$media->getUrl()}}" class="h-fit" alt="{{$media->name}}" />
-                            </div>
+                    <div class="col-span-1 self-center">
+                        <img src="{{$media->getUrl()}}" class="cursor-pointer" alt="{{$media->name}}" x-on:click="$flux.modal('highlight-media-{{$key}}').show()" />
+                        <flux:modal position="right" :name="'highlight-media-'.$key" class="max-w-4/6 ">
+                                <img src="{{$media->getUrl()}}"  alt="{{$media->name}}" />
                         </flux:modal>
                     </div>
                 @endforeach

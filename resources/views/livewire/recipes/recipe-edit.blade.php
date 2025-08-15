@@ -160,6 +160,7 @@ updated(['newUploadPhotos' => function () {
 
 <div class="h-1/4 flex flex-col">
     <div class="p-2 sm:justify-end flex sm:flex-row sm:gap-4 flex-col gap-2 mb-8">
+        <flux:button variant="ghost" wire:navigate href="{{route('recipes.show', $recipe)}}" icon:trailing="arrow-up-right" >View Recipe</flux:button>
         <flux:button variant="danger" icon:trailing="trash" wire:confirm="Do you wanna delete this Recipe?"
                      wire:click="removeRecipe()">Delete Recipe
         </flux:button>
@@ -174,34 +175,36 @@ updated(['newUploadPhotos' => function () {
     </div>
     <div class="p-2">
         <flux:input type="file" wire:loading wire:model="newUploadPhotos" label="Photos:" multiple/>
-        <div class="border border-dashed w-full h-12 my-4">
-
-        </div>
         <div class="m-2" wire:loading wire:target="newUploadPhotos">Uploading...</div>
-        <div class="grid sm:grid-cols-4 grid-cols-1 gap-2 m-2">
-            @foreach($photos as $key => $photo)
-                <div wire:replace wire:key="photo-{{$photo->id}}"
-                     class="col-span-1 relative border p-1 rounded-sm shadow-sm ">
-                    <flux:button.group class="absolute top-0 right-0">
+    </div>
+    <div class="p-1 border shadow-sm rounded-sm">
+        <div class="grid sm:grid-cols-4 grid-cols-1 gap-2">
+                @foreach($photos as $key => $photo)
+                    <div wire:replace wire:key="photo-{{$photo->id}}"
+                         class="col-span-1 relative border p-1 rounded-sm shadow-sm self-center ">
+                        <flux:button.group class="absolute top-0 right-0">
 
-                        <flux:button wire:click="removePhoto({{$key}})" variant="ghost">
-                            <flux:icon.minus-circle variant="solid" color="red"/>
-                        </flux:button>
-                    </flux:button.group>
-                    <img class="object-contain mb-2" src="{{$photo->getUrl()}}" wire:click="remove" alt=""/>
-                </div>
-            @endforeach
-            @foreach($newPhotos as $key => $photo)
-                <div wire:key="newPhoto-{{$key}}" class="col-span-1 relative border p-1 rounded-sm shadow-sm ">
-                    <flux:button.group class="absolute top-0 right-0">
+                            <flux:button wire:click="removePhoto({{$key}})" variant="ghost">
+                                <flux:icon.minus-circle variant="solid" color="red"/>
+                            </flux:button>
+                        </flux:button.group>
+                        <img class="object-contain mb-2" src="{{$photo->getUrl()}}" alt=""/>
+                    </div>
+                @endforeach
+                @foreach($newPhotos as $key => $photo)
+                    <div wire:key="newPhoto-{{$key}}" class="col-span-1 relative border p-1 rounded-sm shadow-sm ">
+                        <flux:button.group class="absolute top-0 right-0">
 
-                        <flux:button wire:click="removeNewPhoto({{$key}})" variant="ghost">
-                            <flux:icon.minus-circle variant="solid" color="red"/>
-                        </flux:button>
-                    </flux:button.group>
-                    <img class="object-contain mb-2" src="{{$photo->temporaryUrl()}}" wire:click="remove" alt=""/>
-                </div>
-            @endforeach
+                            <flux:button wire:click="removeNewPhoto({{$key}})" variant="ghost">
+                                <flux:icon.minus-circle variant="solid" color="red"/>
+                            </flux:button>
+                        </flux:button.group>
+                        <img class="object-contain mb-2" src="{{$photo->temporaryUrl()}}" alt=""/>
+                    </div>
+                @endforeach
+                @if($photos->count() < 1 && count($newPhotos) < 1)
+                    <flux:text>No Photos</flux:text>
+                @endif
         </div>
     </div>
     <div class="p-2">
