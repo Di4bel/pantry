@@ -173,9 +173,27 @@ updated(['newUploadPhotos' => function () {
             <flux:error name="title"/>
         </flux:field>
     </div>
-    <div class="p-2">
+    <div class="p-2" >
         <flux:input type="file" wire:loading wire:model="newUploadPhotos" label="Photos:" multiple/>
-        <div class="m-2" wire:loading wire:target="newUploadPhotos">Uploading...</div>
+        <div class="m-2" wire:loading wire:target="newUploadPhotos">
+            <p>Uploading files...</p>
+            <flux:button class="mt-2" variant="danger" wire:click="$cancelUpload('newUploadPhotos')">Cancel Upload</flux:button>
+        </div>
+        <div class="w-full h-24 border text-center flex flex-col justify-center items-center"
+             x-data="{dropping: false}"
+             x-bind:class="{ 'border-solid': dropping, 'border-dotted': !dropping }"
+             x-on:dragover.prevent="dropping = true"
+             x-on:dragleave.prevent="dropping = false"
+             x-on:drop="dropping = false"
+             x-on:drop.prevent="
+                if ($event.dataTransfer.files.length <= 0) {
+                    return
+                }
+                @this.uploadMultiple('newUploadPhotos', $event.dataTransfer.files)
+             "
+        >
+            <p>Drop your files here</p>
+        </div>
     </div>
     <div class="p-1 border shadow-sm rounded-sm">
         <div class="grid sm:grid-cols-4 grid-cols-1 gap-2">
