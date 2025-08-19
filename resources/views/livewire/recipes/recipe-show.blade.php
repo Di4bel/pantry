@@ -58,8 +58,8 @@ class extends Component {
                 </div>
         </div>
     </div>
-    <div class="mt-4 grid grid-cols-2 gap-x-2">
-        <div class="rounded p-4 border dark:border-gray-200  sm:col-span-1 col-span-2 ">
+    <div class="mt-4 grid grid-cols-2 gap-x-4 p-1 rounded border dark:border-b-gray-200">
+        <div class="rounded p-1 border dark:border-gray-200  sm:col-span-1 col-span-2 ">
             <table class="border-collapse table-auto w-full ">
                 <thead class="text-sm">
                 <tr>
@@ -81,8 +81,17 @@ class extends Component {
                 </tbody>
             </table>
         </div>
-        <div class="sm:col-span-1 col-span-2 p-2">
-            Images Soon TM
+        <div class="rounded p-1 border dark:border-gray-200 flex flex-col sm:col-span-1 col-span-2 ">
+            <div class=" grid lg:grid-cols-2 grid-cols-1 gap-2 ">
+                @foreach($recipe->getMedia() as $key => $media)
+                    <div class="col-span-1 self-center">
+                        <img src="{{$media->getUrl()}}" class="cursor-pointer" alt="{{$media->name}}" x-on:click="$flux.modal('highlight-media-{{$key}}').show()" />
+                        <flux:modal position="right" :name="'highlight-media-'.$key" class="max-w-4/6 ">
+                                <img src="{{$media->getUrl()}}"  alt="{{$media->name}}" />
+                        </flux:modal>
+                    </div>
+                @endforeach
+            </div>
         </div>
 
     </div>

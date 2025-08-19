@@ -1,10 +1,14 @@
 <?php
 
+use App\Actions\UpdateRecipeAction;
 use App\Models\Recipe;
-use function Livewire\Volt\{rules, state, mount};
+use Illuminate\Validation\Rule;
+use function Livewire\Volt\{on, rules, state, mount, updated, usesFileUploads};
+
+usesFileUploads();
 
 
-state(['recipe'])->locked();
+state(['recipe']);
 state([
     'title' => '',
     'ingredients' => collect(),
@@ -21,14 +25,19 @@ state([
         'tbsp',
         'tsp',
     ],
+    'photos',
+    'newPhotos' => [],
+    'newUploadPhotos' => [],
+    'photosRemoveID' => [],
 ]);
 
 
-mount(function (Recipe $recipe){
+mount(function (Recipe $recipe): void {
     $this->recipe = $recipe;
     $this->title = $recipe->title;
     $this->ingredients = collect($recipe->ingredients);
     $this->description = $recipe->description;
+    $this->photos = $recipe->getMedia();
 });
 
 
@@ -40,7 +49,7 @@ rules([
     'ingredients.*.type' => [
         'string',
         'required',
-        \Illuminate\Validation\Rule::in([
+        Rule::in([
                 'count',
                 'kg',
                 'ml',
@@ -54,14 +63,14 @@ rules([
     'description' => 'string|required|regex:/^.+$/'
 ]);
 
-$addIngredient = function () {
+$addIngredient = function (): void {
     $validated = $this->validate([
         'newIngredientName' => 'string|required|max:255',
         'newIngredientAmount' => 'numeric|required',
         'newIngredientType' => [
             'string',
             'required',
-            \Illuminate\Validation\Rule::in($this->ingredientAmountType),
+            Rule::in($this->ingredientAmountType),
         ],
     ]);
 
@@ -75,18 +84,32 @@ $addIngredient = function () {
     $this->newIngredientType = '';
 };
 
-$removeIngredient = function ($key) {
+$removeIngredient = function ($key): void {
     unset($this->ingredients[$key]);
     $this->ingredients = $this->ingredients->values();
 };
 
-$saveRecipe = function () {
-    $action = new \App\Actions\UpdateRecipeAction();
+$saveRecipe = function (): void {
+    $action = new UpdateRecipeAction();
     $validated = $this->validate();
-    $action->handle($this->recipe, $validated);
+    $recipe = $action->handle($this->recipe, $validated);
+    foreach ($this->photosRemoveID as $id) {
+        $recipe->deleteMedia($id);
+    }
+    foreach ($this->newPhotos as $photo) {
+        $recipe->addMedia($photo->path())
+            ->usingName($photo->getClientOriginalName())
+            ->toMediaCollection();
+    }
+    $this->newPhotos = [];
+    $this->photosRemoveID = [];
+
+    // Problem with getMedia after deleting photos,
+    $this->recipe = Recipe::find($recipe->id);
+    $this->photos = $this->recipe->getMedia();
 };
 
-$changeIngredientsOrder = function (int $itemOrderOldKey, int $newKey) {
+$changeIngredientsOrder = function (int $itemOrderOldKey, int $newKey): void {
     if (isset($this->ingredients[$itemOrderOldKey]) && isset($this->ingredients[$newKey])) {
         // Convert to array, reorder, and convert back to collection
         $ingredients = $this->ingredients->toArray();
@@ -111,16 +134,36 @@ $changeIngredientsOrder = function (int $itemOrderOldKey, int $newKey) {
     }
 };
 
-$removeRecipe = function (){
+$removeRecipe = function (): void {
     $this->recipe->delete();
     $this->dispatch('DeleteRecipe');
     $this->redirectRoute('recipes.index');
-}
+};
+
+$removePhoto = function (int $photoKey): void {
+    $this->photosRemoveID[] = $this->photos[$photoKey]->id;
+    unset($this->photos[$photoKey]);
+};
+
+$removeNewPhoto = function (int $photoKey): void {
+    unset($this->newPhotos[$photoKey]);
+};
+
+updated(['newUploadPhotos' => function () {
+    foreach ($this->newUploadPhotos as $newUpload) {
+        $this->newPhotos[] = $newUpload;
+    }
+    $this->reset('newUploadPhotos');
+}]);
+
 ?>
 
 <div class="h-1/4 flex flex-col">
     <div class="p-2 sm:justify-end flex sm:flex-row sm:gap-4 flex-col gap-2 mb-8">
-        <flux:button variant="danger" icon:trailing="trash" wire:confirm="Do you wanna delete this Recipe?" wire:click="removeRecipe()">Delete Recipe</flux:button>
+        <flux:button variant="ghost" wire:navigate href="{{route('recipes.show', $recipe)}}" icon:trailing="arrow-up-right" >View Recipe</flux:button>
+        <flux:button variant="danger" icon:trailing="trash" wire:confirm="Do you wanna delete this Recipe?"
+                     wire:click="removeRecipe()">Delete Recipe
+        </flux:button>
         <flux:button variant="primary" icon:trailing="plus" wire:click="saveRecipe()">Save Recipe</flux:button>
     </div>
     <div class="p-2">
@@ -129,6 +172,58 @@ $removeRecipe = function (){
             <flux:input type="text" wire:model.live="title"/>
             <flux:error name="title"/>
         </flux:field>
+    </div>
+    <div class="p-2" >
+        <flux:input type="file" wire:loading wire:model="newUploadPhotos" label="Photos:" multiple/>
+        <div class="m-2" wire:loading wire:target="newUploadPhotos">
+            <p>Uploading files...</p>
+            <flux:button class="mt-2" variant="danger" wire:click="$cancelUpload('newUploadPhotos')">Cancel Upload</flux:button>
+        </div>
+        <div class="w-full h-24 border text-center flex flex-col justify-center items-center"
+             x-data="{dropping: false}"
+             x-bind:class="{ 'border-solid': dropping, 'border-dotted': !dropping }"
+             x-on:dragover.prevent="dropping = true"
+             x-on:dragleave.prevent="dropping = false"
+             x-on:drop="dropping = false"
+             x-on:drop.prevent="
+                if ($event.dataTransfer.files.length <= 0) {
+                    return
+                }
+                @this.uploadMultiple('newUploadPhotos', $event.dataTransfer.files)
+             "
+        >
+            <p>Drop your files here</p>
+        </div>
+    </div>
+    <div class="p-1 border shadow-sm rounded-sm">
+        <div class="grid sm:grid-cols-4 grid-cols-1 gap-2">
+                @foreach($photos as $key => $photo)
+                    <div wire:replace wire:key="photo-{{$photo->id}}"
+                         class="col-span-1 relative border p-1 rounded-sm shadow-sm self-center ">
+                        <flux:button.group class="absolute top-0 right-0">
+
+                            <flux:button wire:click="removePhoto({{$key}})" variant="ghost">
+                                <flux:icon.minus-circle variant="solid" color="red"/>
+                            </flux:button>
+                        </flux:button.group>
+                        <img class="object-contain mb-2" src="{{$photo->getUrl()}}" alt=""/>
+                    </div>
+                @endforeach
+                @foreach($newPhotos as $key => $photo)
+                    <div wire:key="newPhoto-{{$key}}" class="col-span-1 relative border p-1 rounded-sm shadow-sm ">
+                        <flux:button.group class="absolute top-0 right-0">
+
+                            <flux:button wire:click="removeNewPhoto({{$key}})" variant="ghost">
+                                <flux:icon.minus-circle variant="solid" color="red"/>
+                            </flux:button>
+                        </flux:button.group>
+                        <img class="object-contain mb-2" src="{{$photo->temporaryUrl()}}" alt=""/>
+                    </div>
+                @endforeach
+                @if($photos->count() < 1 && count($newPhotos) < 1)
+                    <flux:text>No Photos</flux:text>
+                @endif
+        </div>
     </div>
     <div class="p-2">
         <flux:fieldset class="gap-y-2">
@@ -162,7 +257,7 @@ $removeRecipe = function (){
             <div class="mt-2" id="ingredientsList">
                 @foreach($ingredients as $key => $ingredient)
 
-                    <flux:input.group wire:key="{{$key}}">
+                    <flux:input.group wire:key="ingredients-{{$key}}">
                         <flux:input wire:model.live="ingredients.{{$key}}.name" type="text" placeholder="Ingredient"/>
                         <flux:input wire:model.live="ingredients.{{$key}}.amount" type="number"
                                     placeholder="Quantity"/>
