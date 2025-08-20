@@ -29,7 +29,6 @@ final class StoreRecipeRequest extends FormRequest
             'title' => 'required|string|max:255',
             'ingredients' => 'array|required',
             'description' => 'required|string',
-            'creator_id' => 'required|integer',
         ];
     }
 }

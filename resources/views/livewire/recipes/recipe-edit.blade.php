@@ -33,6 +33,7 @@ state([
 
 
 mount(function (Recipe $recipe): void {
+    $this->authorize('update',$recipe);
     $this->recipe = $recipe;
     $this->title = $recipe->title;
     $this->ingredients = collect($recipe->ingredients);
@@ -90,6 +91,7 @@ $removeIngredient = function ($key): void {
 };
 
 $saveRecipe = function (): void {
+    $this->authorize('update',$recipe);
     $action = new UpdateRecipeAction();
     $validated = $this->validate();
     $recipe = $action->handle($this->recipe, $validated);
@@ -135,6 +137,7 @@ $changeIngredientsOrder = function (int $itemOrderOldKey, int $newKey): void {
 };
 
 $removeRecipe = function (): void {
+    dd($this->authorize('delete',$this->recipe));
     $this->recipe->delete();
     $this->dispatch('DeleteRecipe');
     $this->redirectRoute('recipes.index');
@@ -149,7 +152,7 @@ $removeNewPhoto = function (int $photoKey): void {
     unset($this->newPhotos[$photoKey]);
 };
 
-updated(['newUploadPhotos' => function () {
+updated(['newUploadPhotos' => function (): void {
     foreach ($this->newUploadPhotos as $newUpload) {
         $this->newPhotos[] = $newUpload;
     }

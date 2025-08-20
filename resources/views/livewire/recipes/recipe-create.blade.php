@@ -113,7 +113,7 @@ $removePhoto = function (int $photoKey): void {
     unset($this->photos[$photoKey]);
 };
 
-updated(['newUploadPhotos' => function () {
+updated(['newUploadPhotos' => function (): void {
     foreach ($this->newUploadPhotos as $newUpload) {
         $this->photos[] = $newUpload;
     }

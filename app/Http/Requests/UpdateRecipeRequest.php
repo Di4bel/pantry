@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 
 final class UpdateRecipeRequest extends FormRequest
@@ -13,7 +14,7 @@ final class UpdateRecipeRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return auth()->check();
     }
 
     /**
@@ -24,7 +25,9 @@ final class UpdateRecipeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'title' => 'string|max:255',
+            'ingredients' => 'array',
+            'description' => 'string',
         ];
     }
 }

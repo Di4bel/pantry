@@ -15,7 +15,6 @@ test('RecipeAction can create a recipe', function (): void {
         'title' => fake()->word(),
         'ingredients' => fake()->words(),
         'description' => fake()->paragraph(),
-        'creator_id' => $user->id,
     ]);
     expect($recipe)->toBeInstanceOf(App\Models\Recipe::class);
 });
@@ -26,6 +25,17 @@ test('RecipeActions can fail', function (): void {
     $recipe = $action->handle($user, [
         'ingredients' => fake()->text(),
         'description' => fake()->paragraph(),
+    ]);
+})->throws(Exception::class);
+
+test('RecipeActions can not massasign creator_id', function (): void {
+    $user = App\Models\User::factory()->create();
+    $action = new App\Actions\CreateRecipeAction;
+    $recipe = $action->handle($user, [
+        'title' => fake()->word(),
+        'description' => fake()->paragraph(),
+        'ingredients' => fake()->words(),
+        'creator_id' => $user->id,
     ]);
 })->throws(Exception::class);
 

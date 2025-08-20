@@ -24,7 +24,6 @@ final class Recipe extends Model implements HasMedia
         'title',
         'ingredients',
         'description',
-        'creator_id',
     ];
 
     /*

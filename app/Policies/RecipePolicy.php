@@ -38,7 +38,7 @@ final class RecipePolicy
      */
     public function update(User $user, Recipe $recipe): bool
     {
-        return false;
+        return $user->id === $recipe->creator_id;
     }
 
     /**
@@ -46,22 +46,6 @@ final class RecipePolicy
      */
     public function delete(User $user, Recipe $recipe): bool
     {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, Recipe $recipe): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, Recipe $recipe): bool
-    {
-        return false;
+        return $user->id === $recipe->creator_id;
     }
 }
