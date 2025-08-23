@@ -26,5 +26,3 @@ test('any user can view Models', function (): void {
     actingAs($user);
     expect(Gate::authorize('view', $recipe)->allowed())->toBeTrue();
 });
-
-
