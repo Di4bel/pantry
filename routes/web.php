@@ -26,8 +26,6 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
     Volt::route('recipes/create', 'recipes.recipe-create')->name('recipes.create');
     Volt::route('recipes/{recipe}', 'recipes.recipe-show')->name('recipes.show');
     Volt::route('recipes/{recipe}/edit', 'recipes.recipe-edit')->name('recipes.edit');
-    Route::post('recipes/store', [App\Http\Controllers\RecipeController::class, 'store'])->name('recipes.store');
-    Route::put('recipes/{recipe}', [App\Http\Controllers\RecipeController::class, 'update'])->name('recipes.update');
     Volt::route('users/{user}', 'users.user-show')->name('users.show');
 });
 

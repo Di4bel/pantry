@@ -36,9 +36,9 @@ final class Recipe extends Model implements HasMedia
         return $this->belongsTo(User::class, 'creator_id');
     }
 
+    // @codeCoverageIgnoreStart
     /*
      *  TODO: needs to be looked at, is from Spatie-Media-library
-     *  @codeCoverageIgnoreStart
      */
     public function registerMediaConversions(?Media $media = null): void
     {

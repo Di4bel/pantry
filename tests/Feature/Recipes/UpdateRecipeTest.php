@@ -38,15 +38,3 @@ test('Recipe can not be updated by other users', function (): void {
     $result = $user->can('update', $recipe);
     expect($result)->toBeFalse();
 });
-
-test('RecipeController can update a recipe', function (): void {
-    $user = App\Models\User::factory()->create();
-    $recipe = App\Models\Recipe::factory()->create(['creator_id' => $user->id]);
-
-    $response = test()->actingAs($user)->put('/recipes/'.$recipe->id, [
-        'title' => fake()->word(),
-        'ingredients' => fake()->words(),
-        'description' => fake()->paragraph(),
-    ]);
-    expect($response->getStatusCode())->toBe(200);
-});
