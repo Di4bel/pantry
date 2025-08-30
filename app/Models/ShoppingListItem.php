@@ -24,11 +24,17 @@ final class ShoppingListItem extends Model
         'price',
     ];
 
+    /*
+     *  @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /*
+     *  @return BelongsTo<ShoppingList, $this>
+     */
     public function shoppingList(): BelongsTo
     {
         return $this->belongsTo(ShoppingList::class);
@@ -42,7 +48,7 @@ final class ShoppingListItem extends Model
     protected function price(): Attribute
     {
         return Attribute::make(
-            get: fn (int $value): int => $value / 100,
+            get: fn (int $value): float => $value / 100,
             set: fn (float $value): int => (int) round($value * 100),
         );
     }

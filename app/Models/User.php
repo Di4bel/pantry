@@ -56,7 +56,7 @@ final class User extends Authenticatable
      */
     public function recipes(): HasMany
     {
-        return $this->hasMany(Recipe::class, 'creator_id', 'id');
+        return $this->hasMany(Recipe::class, 'creator_id');
     }
 
     /*

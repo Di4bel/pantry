@@ -4,11 +4,17 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Database\Factories\ShoppingListFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 final class ShoppingList extends Model
 {
+    /** @use HasFactory<ShoppingListFactory> */
+    use HasFactory;
+
     /*
      * the attributes that are mass assignable
      *
@@ -22,11 +28,28 @@ final class ShoppingList extends Model
     ];
 
     /*
+     *  @return BelongsTo<User, $this>
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /*
      *  @return HasMany<ShoppingListItem, $this>
      */
-    public function items(): HasMany
+    public function shoppingListItems(): HasMany
     {
-        return $this->hasMany(ShoppingListItem::class, 'shopping_list_id');
+        return $this->hasMany(ShoppingListItem::class);
+    }
+
+    /*
+     *  returns the total price of the shopping list
+     * @return float
+     */
+    public function totalPrice(): float
+    {
+        return $this->shoppingListItems->sum('price');
     }
 
     protected function casts(): array
