@@ -9,11 +9,13 @@
     ],
     "license": "MIT",
     "require": {
-        "php": "^8.4",
-        "laravel/framework": "^12.26.4",
+        "php": "^8.5",
+        "ext-pdo": "*",
+        "laravel/framework": "^12.38.1",
         "laravel/tinker": "^2.10.1",
-        "livewire/flux": "^2.2.6",
-        "livewire/volt": "^1.7.2",
+        "livewire/flux": "^2.6.1",
+        "livewire/flux-pro": "^2.9",
+        "livewire/volt": "^1.9.0",
         "nunomaduro/essentials": "@dev",
         "spatie/laravel-medialibrary": "^11.14"
     },
@@ -98,5 +100,10 @@
         }
     },
     "minimum-stability": "stable",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "repositories": [{
+        "name": "flux-pro",
+        "type": "composer",
+        "url": "https://composer.fluxui.dev"
+    }]
 }
