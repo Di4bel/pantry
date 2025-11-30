@@ -1,17 +1,23 @@
 <?php
 
-use function Livewire\Volt\{rules, state, mount, updated, usesFileUploads};
+use Illuminate\Support\Collection;
+use Illuminate\Validation\Rule;
+use Livewire\Attributes\Locked;
+use Livewire\Component;
+use Livewire\WithFileUploads;
 
-usesFileUploads();
+new class extends Component {
 
-state([
-    'title' => '',
-    'ingredients' => collect(),
-    'description' => '',
-    'newIngredientName',
-    'newIngredientAmount',
-    'newIngredientType' => '',
-    'ingredientAmountType' => [
+    use WithFileUploads;
+
+    public string $title = '';
+    public Collection $ingredients;
+    public string $description = '';
+    public string $newIngredientName;
+    public string $newIngredientAmount;
+    public string $newIngredientType = '';
+    #[Locked]
+    public array $ingredientAmountType = [
         'count',
         'kg',
         'ml',
@@ -19,106 +25,110 @@ state([
         'g',
         'tbsp',
         'tsp',
-    ],
-    'photos' => [],
-    'newUploadPhotos' => [],
-]);
-
-rules([
-    'title' => 'string|required',
-    'ingredients' => 'array|required',
-    'ingredients.*.name' => 'string|required|max:255',
-    'ingredients.*.amount' => 'numeric|required',
-    'ingredients.*.type' => [
-        'string',
-        'required',
-        \Illuminate\Validation\Rule::in([
-                'count',
-                'kg',
-                'ml',
-                'l',
-                'g',
-                'tbsp',
-                'tsp',]
-        ),
-    ],
-    'ingredients.*.order' => 'required|numeric',
-    'description' => 'string|required|regex:/^.+$/'
-]);
-
-$addIngredient = function (): void {
-    $validated = $this->validate([
-        'newIngredientName' => 'string|required|max:255',
-        'newIngredientAmount' => 'numeric|required',
-        'newIngredientType' => [
-            'string',
-            'required',
-            \Illuminate\Validation\Rule::in($this->ingredientAmountType),
-        ],
-    ]);
-
-    $this->ingredients[] = [
-        'name' => $validated['newIngredientName'],
-        'amount' => $validated['newIngredientAmount'],
-        'type' => $validated['newIngredientType'],
-        'order' => count($this->ingredients),
     ];
-    $this->reset('newIngredientName', 'newIngredientAmount');
-    $this->newIngredientType = '';
-};
-
-$removeIngredient = function ($key): void {
-    unset($this->ingredients[$key]);
-    $this->ingredients = $this->ingredients->values();
-};
-
-$saveRecipe = function (): void {
-    $action = new \App\Actions\CreateRecipeAction();
-    $validated = $this->validate();
-    $recipe = $action->handle(auth()->user(), $validated);
-    foreach ($this->photos as $photo) {
-        $recipe->addMedia($photo->path())
-            ->usingName($photo->getClientOriginalName())
-            ->toMediaCollection();
+    public $photos = [];
+    public $newUploadPhotos = [];
+    public function mount(): void
+    {
+        $this->ingredients = collect([]);
     }
-    to_route('recipes.show', $recipe);
-};
 
-$changeIngredientsOrder = function (int $itemOrderOldKey, int $newKey): void {
-    if (isset($this->ingredients[$itemOrderOldKey]) && isset($this->ingredients[$newKey])) {
-        // Convert to array, reorder, and convert back to collection
-        $ingredients = $this->ingredients->toArray();
-
-        // Extract the item to move
-        $movedItem = $ingredients[$itemOrderOldKey];
-
-        // Remove the item from its original position
-        unset($ingredients[$itemOrderOldKey]);
-
-        // Reindex the array to ensure sequential keys
-        $ingredients = array_values($ingredients);
-
-        // Insert the item at the new position
-        array_splice($ingredients, $newKey, 0, [$movedItem]);
-
-        // Convert back to collection and update order values sequentially
-        $this->ingredients = collect($ingredients)->map(function ($item, $key) {
-            $item['order'] = $key;
-            return $item;
-        })->values();
+    protected function rules(): array
+    {
+        return [
+            'title' => 'string|required',
+            'ingredients' => 'array|required',
+            'ingredients.*.name' => 'string|required|max:255',
+            'ingredients.*.amount' => 'numeric|required',
+            'ingredients.*.type' => [
+                'string',
+                'required',
+                Rule::in($this->ingredientAmountType),
+            ],
+            'ingredients.*.order' => 'required|numeric',
+            'description' => 'string|required|regex:/^.+$/'
+        ];
     }
-};
 
-$removePhoto = function (int $photoKey): void {
-    unset($this->photos[$photoKey]);
-};
+    public function addIngredient()
+    {
+        $validated = $this->validate([
+            'newIngredientName' => 'string|required|max:255',
+            'newIngredientAmount' => 'numeric|required',
+            'newIngredientType' => [
+                'string',
+                'required',
+                Rule::in($this->ingredientAmountType),
+            ],
+        ]);
 
-updated(['newUploadPhotos' => function (): void {
-    foreach ($this->newUploadPhotos as $newUpload) {
-        $this->photos[] = $newUpload;
+        $this->ingredients[] = [
+            'name' => $validated['newIngredientName'],
+            'amount' => $validated['newIngredientAmount'],
+            'type' => $validated['newIngredientType'],
+            'order' => count($this->ingredients),
+        ];
+        $this->reset('newIngredientName', 'newIngredientAmount');
+        $this->newIngredientType = '';
     }
-    $this->reset('newUploadPhotos');
-}]);
+
+    public function removeIngredient($key): void {
+        unset($this->ingredients[$key]);
+        $this->ingredients = $this->ingredients->values();
+    }
+
+    public function saveRecipe()
+    {
+        $action = new \App\Actions\CreateRecipeAction();
+        $validated = $this->validate();
+        $recipe = $action->handle(auth()->user(), $validated);
+        foreach ($this->photos as $photo) {
+            $recipe->addMedia($photo->path())
+                ->usingName($photo->getClientOriginalName())
+                ->toMediaCollection();
+        }
+        to_route('recipes.show', $recipe);
+    }
+
+    public function changeIngredientsOrder(int $itemOrderOldKey, int $newKey)
+    {
+        if (isset($this->ingredients[$itemOrderOldKey]) && isset($this->ingredients[$newKey])) {
+            // Convert to array, reorder, and convert back to collection
+            $ingredients = $this->ingredients->toArray();
+
+            // Extract the item to move
+            $movedItem = $ingredients[$itemOrderOldKey];
+
+            // Remove the item from its original position
+            unset($ingredients[$itemOrderOldKey]);
+
+            // Reindex the array to ensure sequential keys
+            $ingredients = array_values($ingredients);
+
+            // Insert the item at the new position
+            array_splice($ingredients, $newKey, 0, [$movedItem]);
+
+            // Convert back to collection and update order values sequentially
+            $this->ingredients = collect($ingredients)->map(function ($item, $key) {
+                $item['order'] = $key;
+                return $item;
+            })->values();
+        }
+    }
+
+    public function removePhoto(int $photoKey)
+    {
+        unset($this->photos[$photoKey]);
+    }
+
+    public function updatedNewUploadPhotos(): void
+    {
+        foreach ($this->newUploadPhotos as $newUpload) {
+            $this->photos[] = $newUpload;
+        }
+        $this->reset('newUploadPhotos');
+    }
+}
 ?>
 
 <div class="h-1/4 flex flex-col">

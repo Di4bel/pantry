@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
-use Livewire\Volt\Volt;
 
 Route::get('/', function () {
     return view('welcome');
@@ -14,19 +13,19 @@ Route::view('dashboard', 'dashboard')
     ->name('dashboard');
 
 Route::middleware(['auth'])->group(function (): void {
-    Route::redirect('settings', 'settings/profile');
+    Route::redirect('settings', 'pages::settings/profile');
 
-    Volt::route('settings/profile', 'settings.profile')->name('settings.profile');
-    Volt::route('settings/password', 'settings.password')->name('settings.password');
-    Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
+    Route::livewire('settings/profile', 'pages::settings.profile')->name('settings.profile');
+    Route::livewire('settings/password', 'pages::settings.password')->name('settings.password');
+    Route::livewire('settings/appearance', 'pages::settings.appearance')->name('settings.appearance');
 });
 
 Route::middleware(['auth', 'verified'])->group(function (): void {
-    Volt::route('recipes', 'recipes.recipe-index')->name('recipes.index');
-    Volt::route('recipes/create', 'recipes.recipe-create')->name('recipes.create');
-    Volt::route('recipes/{recipe}', 'recipes.recipe-show')->name('recipes.show');
-    Volt::route('recipes/{recipe}/edit', 'recipes.recipe-edit')->name('recipes.edit');
-    Volt::route('users/{user}', 'users.user-show')->name('users.show');
+    Route::livewire('recipes', 'pages::recipes.recipe-index')->name('recipes.index');
+    Route::livewire('recipes/create', 'pages::recipes.recipe-create')->name('recipes.create');
+    Route::livewire('recipes/{recipe}', 'pages::recipes.recipe-show')->name('recipes.show');
+    Route::livewire('recipes/{recipe}/edit', 'pages::recipes.recipe-edit')->name('recipes.edit');
+    Route::livewire('users/{user}', 'pages::users.user-show')->name('users.show');
 });
 
 require __DIR__.'/auth.php';

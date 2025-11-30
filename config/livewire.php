@@ -40,7 +40,7 @@ return [
     |
     */
 
-    'layout' => 'components.layouts.app',
+    'component_layout' => 'layouts::app',
 
     /*
     |---------------------------------------------------------------------------
@@ -52,7 +52,7 @@ return [
     |
     */
 
-    'lazy_placeholder' => 'livewire.placeholder',
+    'component_placeholder' => 'livewire.placeholder',
 
     /*
     |---------------------------------------------------------------------------
@@ -159,4 +159,24 @@ return [
     */
 
     'pagination_theme' => 'tailwind',
+
+    'smart_wire_keys' => true,
+
+    'component_locations' => [
+        resource_path('views/components'),
+        resource_path('views/livewire'),
+    ],
+
+    'component_namespaces' => [
+        'layouts' => resource_path('views/components/layouts'),
+        'pages' => resource_path('views/pages'),
+    ],
+
+    'make_command' => [
+        'type' => 'mfc',  // Options: 'sfc', 'mfc', or 'class'
+        'emoji' => true,   // Whether to use ⚡ emoji prefix
+    ],
+
+    'csp_safe' => false,
+
 ];

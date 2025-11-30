@@ -15,7 +15,7 @@
         "laravel/tinker": "^2.10.1",
         "livewire/flux": "^2.6.1",
         "livewire/flux-pro": "^2.9",
-        "livewire/volt": "^1.9.0",
+        "livewire/livewire": "4.0.0-beta.3",
         "nunomaduro/essentials": "@dev",
         "spatie/laravel-medialibrary": "^11.14"
     },
