@@ -13,7 +13,7 @@ final class RecipePolicy
     /**
      * Determine whether the user can view any models.
      */
-    public function viewAny(?User $user): bool
+    public function viewAny(?User $user): true
     {
         return true;
     }
@@ -21,7 +21,7 @@ final class RecipePolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(?User $user, Recipe $recipe): bool
+    public function view(?User $user, Recipe $recipe): true
     {
         return true;
     }
@@ -29,7 +29,7 @@ final class RecipePolicy
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user): bool
+    public function create(User $user): true
     {
         return true;
     }

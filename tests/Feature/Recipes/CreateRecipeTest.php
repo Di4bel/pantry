@@ -10,7 +10,7 @@ test('Recipe can be created via factory', function (): void {
     expect($recipe)->toBeInstanceOf(App\Models\Recipe::class);
 });
 
-test('User can is authorized to create recipes', function (): void {
+test('User is authorized to create recipes', function (): void {
     $user = App\Models\User::factory()->create();
     actingAs($user);
     expect(Gate::authorize('create', App\Models\Recipe::class)->allowed())->toBeTrue();
